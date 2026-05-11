@@ -96,7 +96,7 @@ class PropertyController extends StateNotifier<PropertyState> {
     state = state.copyWith(isLoading: true);
     try {
       final client = ApiClient();
-      final response = await client.get('/properties', queryParams: {
+      final response = await client.get('/listings', queryParams: {
         'category': state.selectedCategory.name,
         if (state.filters.minPrice != null)
           'min_price': state.filters.minPrice.toString(),

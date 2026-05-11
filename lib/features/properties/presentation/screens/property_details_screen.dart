@@ -10,6 +10,9 @@ import 'package:imara_stay/features/properties/presentation/widgets/reviews_prev
 import 'package:imara_stay/features/properties/presentation/widgets/places_nearby_preview.dart';
 import 'package:imara_stay/features/properties/presentation/screens/virtual_tour_screen.dart';
 import 'package:imara_stay/features/places/presentation/screens/places_near_me_screen.dart';
+import 'package:imara_stay/features/auth/state/auth_controller.dart';
+import 'package:imara_stay/features/auth/models/auth_state.dart';
+import 'package:imara_stay/features/auth/presentation/widgets/auth_dialogs.dart';
 import 'package:imara_stay/features/properties/state/property_details_controller.dart';
 import 'package:imara_stay/features/saved/state/favourites_controller.dart';
 
@@ -122,7 +125,18 @@ class PropertyDetailsScreen extends ConsumerWidget {
               favouriteIds.contains(propertyId) ? Icons.favorite : Icons.favorite_border,
               color: favouriteIds.contains(propertyId) ? AppTheme.primaryRed : AppTheme.darkText,
             ),
-            onPressed: () => favouritesController.toggle(propertyId),
+            onPressed: () {
+              final authState = ref.read(authProvider);
+              if (authState.status != AuthStatus.authenticated) {
+                AuthDialogs.showLoginPrompt(
+                  context,
+                  'Log in to save to Wishlist',
+                  'You need an account to save properties.',
+                );
+              } else {
+                favouritesController.toggle(propertyId);
+              }
+            },
           ),
           IconButton(
             icon: const Icon(Icons.share, color: AppTheme.darkText),
@@ -440,31 +454,93 @@ class PropertyDetailsScreen extends ConsumerWidget {
                     },
                   ),
 
-                  const SizedBox(height: AppSpacing.xxl),
-
-                  // Book Now Button
-                  ElevatedButton(
-                    onPressed: () {
-                      // TODO: Navigate to booking screen
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Booking screen coming soon!'),
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      minimumSize: const Size.fromHeight(48),
-                    ),
-                    child: const Text('Book Now'),
-                  ),
-
-                  const SizedBox(height: AppSpacing.xl),
                 ],
               ),
             ),
           ),
         ],
+      ),
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: AppSpacing.md),
+        decoration: BoxDecoration(
+          color: AppTheme.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, -5),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: property.formattedPrice,
+                          style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                                color: AppTheme.primaryRed,
+                                fontSize: 18,
+                              ),
+                        ),
+                        TextSpan(
+                          text: ' / night',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppTheme.greyText),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  GestureDetector(
+                    onTap: () {
+                      // TODO: Dates picker
+                    },
+                    child: Text(
+                      'Dates',
+                      style: const TextStyle(
+                        decoration: TextDecoration.underline,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  final authState = ref.read(authProvider);
+                  if (authState.status != AuthStatus.authenticated) {
+                    AuthDialogs.showLoginPrompt(
+                      context,
+                      'Log in to reserve',
+                      'You need an account to proceed with your booking.',
+                    );
+                  } else {
+                    // Navigate to checkout
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Reservation flow coming soon!'),
+                      ),
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                  ),
+                ),
+                child: const Text('Reserve'),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

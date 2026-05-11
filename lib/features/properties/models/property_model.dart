@@ -62,9 +62,9 @@ class Property {
       title: json['title'] ?? json['name'] ?? '',
       description: json['description'] ?? '',
       imageUrls: imageList,
-      pricePerNight: (json['price_per_night'] ?? json['price'] ?? 0).toDouble(),
+      pricePerNight: _parseDouble(json['price_per_night'] ?? json['price']),
       location: json['location'] ?? json['address'] ?? '',
-      rating: (json['rating'] ?? 0).toDouble(),
+      rating: _parseDouble(json['rating']),
       reviewsCount: json['reviews_count'] ?? 0,
       category: _parseCategory(categoryStr),
       isVerified: json['is_verified'] ?? false,
@@ -81,6 +81,14 @@ class Property {
       (c) => c.name == s || c.label.toLowerCase() == s || (c.name == 'apartments' && s.contains('apartment')),
       orElse: () => PropertyCategory.apartments,
     );
+  }
+
+  static double _parseDouble(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) return double.tryParse(value) ?? 0.0;
+    return 0.0;
   }
 
   /// Formatted price for Kenyan context

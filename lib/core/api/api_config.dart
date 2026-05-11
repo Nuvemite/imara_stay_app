@@ -12,13 +12,13 @@ class ApiConfig {
   /// Use real API instead of mock data
   static const bool useApi = bool.fromEnvironment(
     'USE_API',
-    defaultValue: false,
+    defaultValue: true,
   );
 
   /// Base URL for API - change based on your setup
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://10.0.2.2:8000/api',
+    defaultValue: 'http://192.168.8.224:8003/api',
   );
 
   /// Full URL for an endpoint
